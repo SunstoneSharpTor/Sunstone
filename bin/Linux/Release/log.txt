@@ -1,0 +1,13 @@
+uci
+quit
+uci
+position start
+go
+uci
+position start
+go
+go
+go
+makemove a2a4
+go
+quit

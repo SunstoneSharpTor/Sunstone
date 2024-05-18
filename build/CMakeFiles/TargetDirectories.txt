@@ -1,0 +1,3 @@
+/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build/CMakeFiles/sunstone.dir
+/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build/CMakeFiles/edit_cache.dir
+/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build/CMakeFiles/rebuild_cache.dir
