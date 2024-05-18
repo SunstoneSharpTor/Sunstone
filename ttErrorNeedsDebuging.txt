@@ -1,0 +1,20 @@
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4
+go wtime 159920 btime 178911 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2
+go wtime 151210 btime 178941 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2 b8c6 e2e3
+go wtime 148130 btime 179219 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2 b8c6 e2e3 g4f6 h2h3
+go wtime 146220 btime 173738 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2 b8c6 e2e3 g4f6 h2h3 d7d5 h1h2
+go wtime 143760 btime 173548 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2 b8c6 e2e3 g4f6 h2h3 d7d5 h1h2 f6e4 g1f3
+go wtime 137880 btime 173059 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2 b8c6 e2e3 g4f6 h2h3 d7d5 h1h2 f6e4 g1f3 c8b7 f1d3
+go wtime 130730 btime 172968 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2 b8c6 e2e3 g4f6 h2h3 d7d5 h1h2 f6e4 g1f3 c8b7 f1d3 c6b4 d3e4
+go wtime 126900 btime 171898 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2 b8c6 e2e3 g4f6 h2h3 d7d5 h1h2 f6e4 g1f3 c8b7 f1d3 c6b4 d3e4 d5e4 f3e5
+go wtime 119680 btime 172208 winc 1000 binc 1000
+position startpos moves c2c4 g8f6 d2d4 e7e6 c1e3 b7b6 f2f4 f6g4 e3d2 b8c6 e2e3 g4f6 h2h3 d7d5 h1h2 f6e4 g1f3 c8b7 f1d3 c6b4 d3e4 d5e4 f3e5 d8h4 e1f1
+go wtime 115850 btime 172747 winc 1000 binc 1000
