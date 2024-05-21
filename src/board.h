@@ -19,12 +19,12 @@ struct unMakeMoveState {
 };
 
 class Board {
-public:
+private:
     enum PieceType {
         WhiteKing = 0, BlackKing, WhiteQueen, BlackQueen, WhiteBishop, BlackBishop, WhiteKnight, BlackKnight, WhiteRook, BlackRook, WhitePawn, BlackPawn,
         All, White, Black
     };
-public:
+private:
     //board representation
     //pieces
     uint64_t m_pieces[15]; //bitboards
@@ -75,7 +75,6 @@ public:
     int evaluate();
     int search(int depth, int plyFromRoot, int alpha, int beta, char numExtensions);
     int quiescenceSearch(int plyFromRoot, int alpha, int beta);
-    int findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum);
     void orderMoves(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, unsigned char ttBestMove);
     void orderMovesByMoveScores(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, int* lastMoveScores);
 
@@ -141,6 +140,9 @@ public:
     void updatePinnedPieces();
 public:
     Board();
+    inline bool getTurn() {
+        return m_turn;
+    }
     void loadFromFen(string fen);
     inline char getPiece(unsigned char squareIndex) {
         return m_eightByEight[squareIndex];
@@ -167,4 +169,6 @@ public:
     }
 
     string getMoveName(char from, char to, char flags);
+
+    void findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval);
 };

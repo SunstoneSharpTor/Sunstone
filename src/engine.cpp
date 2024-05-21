@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <chrono>
+#include <thread>
 
 #include "engine.h"
 
@@ -20,50 +21,22 @@ void Engine::receiveCommand(string command) {
 	stream >> word;
 
 	if (word == "go") {
+		int time = 0;
+		string timeWord = m_board.getTurn() ? "btime" : "wtime";
+		//find the time left
+		while (stream >> word) {
+			if (word == timeWord) {
+				stream >> word;
+				time = stoi(word);
+			}
+		}
+
 		//calculate the best move
 		unsigned char from, to, flags;
 		int currentDepth, eval;
 		bool cancelSearch = false;
 		m_board.numPositions = 0;
-		auto tp = chrono::high_resolution_clock::now();
-		iterativeDeepeningSearch(&currentDepth, &cancelSearch, &eval, &from, &to, &flags);
-		int timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - tp).count();
-
-		//send info command
-		string info = "info";
-		info.append(" depth ");
-		info.append(to_string(currentDepth - 1));
-		info.append(" seldepth ");
-		info.append(to_string(currentDepth - 1));
-		info.append(" multipv 1");
-		if (eval > 900000000) {
-			info.append(" score mate ");
-			info.append(to_string((1000000000 - eval + 1) / 2));
-		}
-		else if (eval < -900000000) {
-			info.append(" score mate ");
-			info.append(to_string((1000000000 + eval + 1) / -2));
-		}
-		else {
-			info.append(" score cp ");
-			info.append(to_string(eval));
-		}
-		info.append(" nodes ");
-		info.append(to_string(m_board.numPositions));
-		info.append(" nps ");
-		if (timeSearched > 0) {
-			info.append(to_string(m_board.numPositions * 1000 / timeSearched));
-		}
-		else {
-			info.append(to_string(m_board.numPositions * 1000));
-		}
-		info.append(" time ");
-		info.append(to_string(timeSearched));
-
-		info.append("\n");
-		cout << info;
-
-
+		iterativeDeepeningSearch(time, &currentDepth, &cancelSearch, &eval, &from, &to, &flags);
 
 		//send bestmove command
 		string bestMove = "bestmove ";
@@ -136,7 +109,6 @@ void Engine::receiveCommand(string command) {
 					int timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - tp).count();
 				}*/
 
-
 				m_board.makeMove(from, to, flags);
 			}
 		}
@@ -157,12 +129,13 @@ void Engine::receiveCommand(string command) {
 	}
 }
 
+void Engine::iterativeDeepeningSearch(int time, int* currentDepth, bool* cancelSearch, int* eval, unsigned char* bestMoveFrom, unsigned char* bestMoveTo, unsigned char* bestMoveFlags) {
+	auto startTime = chrono::high_resolution_clock::now();
+	int timeSearched = 0;
+	int targetTime = time == 0 ? 10000 : time / 80;
 
-void Engine::iterativeDeepeningSearch(int* currentDepth, bool* cancelSearch, int* eval, unsigned char* bestMoveFrom, unsigned char* bestMoveTo, unsigned char* bestMoveFlags) {
 	*currentDepth = 1;
 	int bestMoveNum = 0;
-
-	auto startTime = chrono::high_resolution_clock::now();
 
 	unsigned char currentBestMoveFrom, currentBestMoveTo, currentBestMoveFlags;
 	currentBestMoveFrom = currentBestMoveTo = currentBestMoveFlags = 0;
@@ -173,11 +146,52 @@ void Engine::iterativeDeepeningSearch(int* currentDepth, bool* cancelSearch, int
 		*bestMoveFlags = currentBestMoveFlags;
 		(*currentDepth)++;
 
-		int timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - startTime).count();
-		if (timeSearched > 50) {
+		if (timeSearched > targetTime) {
 			return;
 		}
 
-		*eval = m_board.findBestMove(cancelSearch, &currentBestMoveFrom, &currentBestMoveTo, &currentBestMoveFlags, *currentDepth, &bestMoveNum);
+		std::thread worker(&Engine::work, this, cancelSearch, &currentBestMoveFrom, &currentBestMoveTo, &currentBestMoveFlags, *currentDepth, &bestMoveNum, eval);
+		worker.join();
+		timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - startTime).count();
+		printInfo(timeSearched, *currentDepth, *eval);
 	}
+}
+
+void Engine::work(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval) {
+	m_board.findBestMove(cancelSearch, from, to, flags, depth, bestMoveNum, eval);
+}
+
+void Engine::printInfo(int timeSearched, int currentDepth, int eval) {
+	string info = "info";
+	info.append(" depth ");
+	info.append(to_string(currentDepth));
+	info.append(" seldepth ");
+	info.append(to_string(currentDepth));
+	info.append(" multipv 1");
+	if (eval > 900000000) {
+		info.append(" score mate ");
+		info.append(to_string((1000000000 - eval + 1) / 2));
+	}
+	else if (eval < -900000000) {
+		info.append(" score mate ");
+		info.append(to_string((1000000000 + eval + 1) / -2));
+	}
+	else {
+		info.append(" score cp ");
+		info.append(to_string(eval));
+	}
+	info.append(" nodes ");
+	info.append(to_string(m_board.numPositions));
+	info.append(" nps ");
+	if (timeSearched > 0) {
+		info.append(to_string(m_board.numPositions * 1000 / timeSearched));
+	}
+	else {
+		info.append(to_string(m_board.numPositions * 1000));
+	}
+	info.append(" time ");
+	info.append(to_string(timeSearched));
+
+	info.append("\n");
+	cout << info;
 }

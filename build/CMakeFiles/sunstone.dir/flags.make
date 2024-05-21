@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I"/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/./src"
 
-CXX_FLAGS = -g
+CXX_FLAGS = -O3 -DNDEBUG
 
