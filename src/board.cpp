@@ -1790,7 +1790,7 @@ int Board::quiescenceSearch(int plyFromRoot, int alpha, int beta) {
     return alpha;
 }
 
-int Board::findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum) {
+void Board::findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval) {
     unsigned char numLegalMoves;
     unsigned char legalMovesFrom[256];
     unsigned char legalMovesTo[256];
@@ -1828,10 +1828,6 @@ int Board::findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* 
 
     unMakeMove(legalMovesFrom[*bestMoveNum], legalMovesTo[*bestMoveNum], legalMovesFlags[*bestMoveNum], &prevMoveState);
     alpha = max(alpha, evaluation);
-
-    if (*cancelSearch) {
-        return 0;
-    }
 
     if (evaluation > bestEval) {
         bestEval = evaluation;
@@ -1872,10 +1868,6 @@ int Board::findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* 
         unMakeMove(legalMovesFrom[moveNum], legalMovesTo[moveNum], legalMovesFlags[moveNum], &prevMoveState);
         alpha = max(alpha, evaluation);
 
-        if (*cancelSearch) {
-            return 0;
-        }
-
         if (evaluation > bestEval) {
             bestEval = evaluation;
             *from = legalMovesFrom[moveNum];
@@ -1883,9 +1875,13 @@ int Board::findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* 
             *flags = legalMovesFlags[moveNum];
             *bestMoveNum = moveNum;
         }
+
+        if (*cancelSearch) {
+            return;
+        }
     }
 
-    return bestEval;
+    *eval = bestEval;
 }
 
 void Board::orderMoves(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, unsigned char ttBestMove) {

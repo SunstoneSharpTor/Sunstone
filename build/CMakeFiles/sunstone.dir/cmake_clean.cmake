@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/bin/Linux/Debug/sunstone"
-  "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/bin/Linux/Debug/sunstone.pdb"
+  "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/bin/Linux/Release/sunstone"
+  "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/bin/Linux/Release/sunstone.pdb"
   "CMakeFiles/sunstone.dir/src/board.cpp.o"
   "CMakeFiles/sunstone.dir/src/board.cpp.o.d"
   "CMakeFiles/sunstone.dir/src/engine.cpp.o"
