@@ -3,8 +3,10 @@
 #include <random>
 #include <algorithm>
 #include <sstream>
+#include <cstdint>
 
 #include "board.h"
+#include "bitboard.h"
 #include "constants.h"
 
 Board::Board() {
@@ -25,36 +27,8 @@ Board::Board() {
 
     m_zobristKeys = new uint64_t[11800];
 
-    m_transpositionTable = new TranspositionTable(256);
-
     initPieceMovementMasksAndTables();
     initZobristRandoms();
-
-    //initialise the pice square tables arrays
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[0] = constants::WHITE_KING_SQUARE_TABLE_EARLY_GAME;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[1] = constants::BLACK_KING_SQUARE_TABLE_EARLY_GAME;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[2] = constants::WHITE_QUEEN_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[3] = constants::BLACK_QUEEN_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[4] = constants::WHITE_BISHOP_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[5] = constants::BLACK_BISHOP_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[6] = constants::WHITE_KNIGHT_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[7] = constants::BLACK_KNIGHT_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[8] = constants::WHITE_ROOK_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[9] = constants::BLACK_ROOK_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[10] = constants::WHITE_PAWN_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_EARLY_GAME[11] = constants::BLACK_PAWN_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[0] = constants::WHITE_KING_SQUARE_TABLE_END_GAME;
-    constants::PIECE_SQUARE_TABLES_END_GAME[1] = constants::BLACK_KING_SQUARE_TABLE_END_GAME;
-    constants::PIECE_SQUARE_TABLES_END_GAME[2] = constants::WHITE_QUEEN_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[3] = constants::BLACK_QUEEN_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[4] = constants::WHITE_BISHOP_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[5] = constants::BLACK_BISHOP_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[6] = constants::WHITE_KNIGHT_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[7] = constants::BLACK_KNIGHT_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[8] = constants::WHITE_ROOK_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[9] = constants::BLACK_ROOK_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[10] = constants::WHITE_PAWN_SQUARE_TABLE;
-    constants::PIECE_SQUARE_TABLES_END_GAME[11] = constants::BLACK_PAWN_SQUARE_TABLE;
 }
 
 void Board::loadFromFen(string fen) {
@@ -156,7 +130,7 @@ void Board::loadFromFen(string fen) {
     }
 
     //get the zobrist hash
-    getZobristKey();
+    setZobristKey();
 }
 
 void Board::makeMove(unsigned char from, unsigned char to, unsigned char flags) {
@@ -1614,336 +1588,6 @@ bool Board::inCheckAfterEnPassant(char friendlyPawnSquare, char kingPosition) {
     return false;
 }
 
-int Board::evaluate() {
-    uint64_t pieceBitboard = m_pieces[PieceType::Black - m_turn];
-
-    int numEnemyPieces = 2;
-    while (pieceBitboard) {
-        popLSB(&pieceBitboard);
-        numEnemyPieces++;
-    }
-
-    int earlyGame = numEnemyPieces;
-    int endGame = 16 - earlyGame;
-
-    int evaluation = 0;
-    int piecePositionEval = 0;
-
-    for (int typeOfPiece = 2; typeOfPiece < 12; typeOfPiece++) {
-        pieceBitboard = m_pieces[typeOfPiece];
-        while (pieceBitboard) {
-            char square = popLSB(&pieceBitboard);
-            piecePositionEval += constants::PIECE_SQUARE_TABLES_EARLY_GAME[typeOfPiece][square] * earlyGame;
-            piecePositionEval += constants::PIECE_SQUARE_TABLES_END_GAME[typeOfPiece][square] * endGame;
-            evaluation += constants::PIECE_VALUES[typeOfPiece];
-        }
-    }
-    evaluation += piecePositionEval / 16;
-    //temp
-    numPositions++;
-    return evaluation + (-2 * evaluation * m_turn);
-}
-
-int Board::search(int depth, int plyFromRoot, int alpha, int beta, char numExtensions) {
-    int ttEvaluation;
-    if (m_transpositionTable->probeHash(&ttEvaluation, m_zobristKeys[m_ply], depth, alpha, beta)) {
-        ttEvaluation -= (plyFromRoot) * (ttEvaluation > 900000000);
-        ttEvaluation += (plyFromRoot) * (ttEvaluation < -900000000);
-        return ttEvaluation;
-    }
-
-    if (depth == 0) {
-        int val = quiescenceSearch(plyFromRoot, alpha, beta);
-        m_transpositionTable->recordHash(m_zobristKeys[m_ply], 0, val, HashType::Exact, 255);
-        return val;
-    }
-
-    int currentHashType = HashType::Alpha;
-
-    unsigned char numLegalMoves;
-    unsigned char legalMovesFrom[256];
-    unsigned char legalMovesTo[256];
-    unsigned char legalMovesFlags[256];
-    unsigned int legalMovesOrder[256];
-
-    getLegalMoves(&numLegalMoves, legalMovesFrom, legalMovesTo, legalMovesFlags);
-
-    if (numLegalMoves == 0) {
-        if (m_check) {
-            int val = -1000000000 + plyFromRoot;
-            m_transpositionTable->recordHash(m_zobristKeys[m_ply], depth, val, HashType::Exact, 255);
-            return val;
-        }
-        m_transpositionTable->recordHash(m_zobristKeys[m_ply], depth, 0, HashType::Exact, 255);
-        return 0;
-    }
-
-    orderMoves(legalMovesFrom, legalMovesTo, legalMovesFlags, legalMovesOrder, numLegalMoves, ttEvaluation);
-    
-    //unsigned char newBestMoveIndex = 255;
-
-    bool extension = (numExtensions < 12) && m_check;
-
-    for (int moveNum = 0; moveNum < numLegalMoves; moveNum++) {
-        unMakeMoveState prevMoveState;
-        getUnMakeMoveState(&prevMoveState, legalMovesTo[legalMovesOrder[moveNum]]);
-        makeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]]);
-        int evaluation;
-
-        //detect 50 move rule
-        if (m_50MoveRule >= 100) {
-            evaluation = 0;
-        }
-        else {
-            //detect a repetition
-            int i = m_ply - 2;
-            while ((i >= m_lastTakeOrPawnMove) && (m_zobristKeys[i] != m_zobristKeys[m_ply])) {
-                i -= 2;
-            }
-            if (m_zobristKeys[i] == m_zobristKeys[m_ply]) {
-                evaluation = 0;
-            }
-
-            else {
-                bool thisMoveExtension = extension || ((numExtensions < 12) && (m_eightByEight[legalMovesTo[legalMovesOrder[moveNum]]] == (PieceType::BlackPawn - m_turn)) && ((legalMovesTo[legalMovesOrder[moveNum]] >= 48) || (legalMovesTo[legalMovesOrder[moveNum]] <= 15)));
-
-                bool needsFullSearch = true;
-
-                if ((moveNum >= 3) && (!thisMoveExtension) && (depth >= 3) && (prevMoveState.takenPieceType == PieceType::All)) {
-                    evaluation = -search(depth - 2 + thisMoveExtension, plyFromRoot + 1, -beta, -alpha, numExtensions + thisMoveExtension);
-
-                    needsFullSearch = evaluation > alpha;
-                }
-
-                if (needsFullSearch) {
-                    evaluation = -search(depth - 1 + thisMoveExtension, plyFromRoot + 1, -beta, -alpha, numExtensions + thisMoveExtension);
-                }
-            }
-        }
-
-        unMakeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]], &prevMoveState);
-        if (evaluation >= beta) {
-            m_transpositionTable->recordHash(m_zobristKeys[m_ply], depth, beta, HashType::Beta, 255);
-            return beta;
-        }
-        //if the evaluation is a new high, set the hash type in the tt to be exact, as the value calculated will be the exact evaluation
-        bool newBestMove = evaluation > alpha;
-        bool notNewBestMove = !newBestMove;
-        currentHashType = currentHashType * notNewBestMove + HashType::Exact * newBestMove;
-        //newBestMoveIndex = newBestMoveIndex * (evaluation < alpha) + legalMovesOrder[moveNum] * (evaluation >= alpha);
-        alpha = max(alpha, evaluation);
-    }
-
-    m_transpositionTable->recordHash(m_zobristKeys[m_ply], depth, alpha, currentHashType, 255);
-    return alpha;
-}
-
-int Board::quiescenceSearch(int plyFromRoot, int alpha, int beta) {
-    int ttEvaluation;
-    if (m_transpositionTable->probeHash(&ttEvaluation, m_zobristKeys[m_ply], 0, alpha, beta)) {
-        ttEvaluation -= (plyFromRoot) * (ttEvaluation > 900000000);
-        ttEvaluation += (plyFromRoot) * (ttEvaluation < -900000000);
-        return ttEvaluation;
-    }
-
-    int evaluation = evaluate();
-    if (evaluation >= beta) {
-        m_transpositionTable->recordHash(m_zobristKeys[m_ply], 0, beta, HashType::Beta, 255);
-        return beta;
-    }
-
-    char currentHashType = HashType::Alpha * (evaluation <= alpha) + HashType::Exact * (evaluation > alpha);
-    alpha = max(alpha, evaluation);
-
-    unsigned char numLegalMoves;
-    unsigned char legalMovesFrom[256];
-    unsigned char legalMovesTo[256];
-    unsigned char legalMovesFlags[256];
-    unsigned int legalMovesOrder[256];
-
-    getCaptureAndCheckMoves(&numLegalMoves, legalMovesFrom, legalMovesTo, legalMovesFlags);
-
-    /*if (m_check) {
-        return max(alpha, search(1, plyFromRoot, alpha, beta));
-    }*/
-
-    orderMoves(legalMovesFrom, legalMovesTo, legalMovesFlags, legalMovesOrder, numLegalMoves, ttEvaluation);
-
-    for (int moveNum = 0; moveNum < numLegalMoves; moveNum++) {
-        unMakeMoveState prevMoveState;
-        getUnMakeMoveState(&prevMoveState, legalMovesTo[legalMovesOrder[moveNum]]);
-
-        makeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]]);
-        int evaluation = -quiescenceSearch(plyFromRoot + 1, -beta, -alpha);
-        unMakeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]], &prevMoveState);
-
-        if (evaluation >= beta) {
-            m_transpositionTable->recordHash(m_zobristKeys[m_ply], 0, beta, HashType::Beta, 255);
-            return beta;
-        }
-        //if the evaluation is a new high, set the hash type in the tt to be exact, as the value calculated will be the exact evaluation
-        currentHashType = currentHashType * (evaluation <= alpha) + HashType::Exact * (evaluation > alpha);
-        alpha = max(alpha, evaluation);
-    }
-
-    m_transpositionTable->recordHash(m_zobristKeys[m_ply], 0, alpha, currentHashType, 255);
-    return alpha;
-}
-
-void Board::findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval) {
-    unsigned char numLegalMoves;
-    unsigned char legalMovesFrom[256];
-    unsigned char legalMovesTo[256];
-    unsigned char legalMovesFlags[256];
-
-    getLegalMoves(&numLegalMoves, legalMovesFrom, legalMovesTo, legalMovesFlags);
-
-    int bestEval = -1000000001;
-    int alpha = -1000000001;
-    int beta = 1000000001;
-
-    unMakeMoveState prevMoveState;
-    getUnMakeMoveState(&prevMoveState, legalMovesTo[*bestMoveNum]);
-    makeMove(legalMovesFrom[*bestMoveNum], legalMovesTo[*bestMoveNum], legalMovesFlags[*bestMoveNum]);
-    int evaluation;
-
-    //detect 50 move rule
-    if (m_50MoveRule >= 100) {
-        evaluation = 0;
-    }
-    else {
-        //detect three-fold repetition
-        char numRepetitions = 1;
-        for (int i = m_ply - 2; i >= m_lastTakeOrPawnMove; i -= 2) {
-            numRepetitions += (m_zobristKeys[i] == m_zobristKeys[m_ply]);
-        }
-        if (numRepetitions > 2) {
-            evaluation = 0;
-        }
-
-        else {
-            evaluation = -search(depth - 1, 1, -beta, -alpha, 0);
-        }
-    }
-
-    unMakeMove(legalMovesFrom[*bestMoveNum], legalMovesTo[*bestMoveNum], legalMovesFlags[*bestMoveNum], &prevMoveState);
-    alpha = max(alpha, evaluation);
-
-    if (evaluation > bestEval) {
-        bestEval = evaluation;
-        *from = legalMovesFrom[*bestMoveNum];
-        *to = legalMovesTo[*bestMoveNum];
-        *flags = legalMovesFlags[*bestMoveNum];
-        *bestMoveNum = *bestMoveNum;
-    }
-
-    for (int moveNum = 0; moveNum < numLegalMoves; moveNum++) {
-        if (moveNum == (*bestMoveNum)) {
-            continue;
-        }
-        unMakeMoveState prevMoveState;
-        getUnMakeMoveState(&prevMoveState, legalMovesTo[moveNum]);
-        makeMove(legalMovesFrom[moveNum], legalMovesTo[moveNum], legalMovesFlags[moveNum]);
-        int evaluation;
-
-        //detect 50 move rule
-        if (m_50MoveRule >= 100) {
-            evaluation = 0;
-        }
-        else {
-            //detect three-fold repetition
-            char numRepetitions = 1;
-            for (int i = m_ply - 2; i >= m_lastTakeOrPawnMove; i -= 2) {
-                numRepetitions += (m_zobristKeys[i] == m_zobristKeys[m_ply]);
-            }
-            if (numRepetitions > 2) {
-                evaluation = 0;
-            }
-
-            else {
-                evaluation = -search(depth - 1, 1, -beta, -alpha, 0);
-            }
-        }
-
-        unMakeMove(legalMovesFrom[moveNum], legalMovesTo[moveNum], legalMovesFlags[moveNum], &prevMoveState);
-        alpha = max(alpha, evaluation);
-
-        if (evaluation > bestEval) {
-            bestEval = evaluation;
-            *from = legalMovesFrom[moveNum];
-            *to = legalMovesTo[moveNum];
-            *flags = legalMovesFlags[moveNum];
-            *bestMoveNum = moveNum;
-        }
-
-        if (*cancelSearch) {
-            return;
-        }
-    }
-
-    *eval = bestEval;
-}
-
-void Board::orderMoves(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, unsigned char ttBestMove) {
-    for (unsigned char move = 0; move < numMoves; move++) {
-        //initialise the move score to be a large value so that it remains positive
-        //it must be positive because I am shifting it left and storing the index of the move using the least significant bits
-        moveScores[move] = 16384; //scores less than 16384 mean better move; vice versa
-
-        if (m_eightByEight[to[move]] < 12) {
-            //give value to taking a high value piece with a low value piece
-            int captureMaterialDelta = (constants::PIECE_VALUES[m_eightByEight[to[move]]] + constants::PIECE_VALUES[m_eightByEight[from[move]]]) * (m_turn * -2 + 1);
-            moveScores[move] += captureMaterialDelta;
-
-            bool opponentCanRecapture = (m_attackingSquares >> to[move]) & 1ull;
-            moveScores[move] += ((captureMaterialDelta > 0) && opponentCanRecapture) * 800 - 400;
-        }
-
-        //give value to promotions
-        moveScores[move] += (constants::PIECE_VALUES[flags[move]]) * (flags[move] > 0);
-
-//        //remove value if the to square is attacked by opponent pawn
-//        moveScores[move] -= (constants::PIECE_VALUES[from[move]]) * (((1ull << to[move]) & m_pawnAttackingSquares) != 0ull);
-
-        //add the move array index
-        moveScores[move] = (moveScores[move] << 16) | move;
-    }
-
-    //if (ttBestMove < 255) {
-        //moveScores[ttBestMove] = (32000 << 16) | ttBestMove;
-    //}
-
-    //sort the moves
-    std::sort(moveScores, moveScores + numMoves);// , greater<unsigned int>());
-
-    //shift the bits a further 16 places, left and then 16 places right
-    //this removes the move score from the integer and leaves just the array index of the move
-    for (unsigned char move = 0; move < numMoves; move++) {
-        moveScores[move] = moveScores[move] << 16;
-        moveScores[move] = moveScores[move] >> 16;
-    }
-}
-
-void Board::orderMovesByMoveScores(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, int* lastMoveScores) {
-    for (unsigned char move = 0; move < numMoves; move++) {
-        //convert the move scores into a 16 bit value
-        moveScores[move] = lastMoveScores[move] + 16384;
-
-        //add the move array index
-        moveScores[move] = (moveScores[move] << 16) | move;
-    }
-
-    //sort the moves
-    std::sort(moveScores, moveScores + numMoves);// , greater<unsigned int>());
-
-    //shift the bits a further 16 places, left and then 16 places right
-    //this removes the move score from the integer and leaves just the array index of the move
-    for (unsigned char move = 0; move < numMoves; move++) {
-        moveScores[move] = moveScores[move] << 16;
-        moveScores[move] = moveScores[move] >> 16;
-    }
-}
-
 string Board::getSquareName(char squareNum) {
     char file = squareNum % 8;
     char rank = 7 - squareNum / 8;
@@ -1952,8 +1596,6 @@ string Board::getSquareName(char squareNum) {
     value[1] = '1' + rank;
     return value;
 }
-
-
 
 string Board::getMoveName(char from, char to, char flags) {
     string result = getSquareName(from);
@@ -1989,13 +1631,9 @@ void Board::initZobristRandoms() {
         t4 = rand() & 0xf;
         m_zobristRandoms[i] = (s30 << 34) + (r30 << 4) + t4;
     }
-
-    /*for (int i = 0; i < 781; i++) {
-        m_zobristRandoms[i] = 1ull << (i % 64);
-    }*/
 }
 
-void Board::getZobristKey() {
+void Board::setZobristKey() {
     m_zobristKeys[m_ply] = 0ull;
 
     //include the positions for all the pieces

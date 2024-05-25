@@ -5,11 +5,11 @@
 #include <thread>
 
 #include "engine.h"
+#include "constants.h"
 
 using namespace std;
 
 void Engine::receiveCommand(string command) {
-
 	ofstream myfile;
 	myfile.open("log.txt", ios::app);
 	string logLine = command;
@@ -35,7 +35,6 @@ void Engine::receiveCommand(string command) {
 		unsigned char from, to, flags;
 		int currentDepth, eval;
 		bool cancelSearch = false;
-		m_board.numPositions = 0;
 		iterativeDeepeningSearch(time, &currentDepth, &cancelSearch, &eval, &from, &to, &flags);
 
 		//send bestmove command
@@ -43,11 +42,6 @@ void Engine::receiveCommand(string command) {
 		bestMove.append(m_board.getMoveName(from, to, flags));
 		bestMove.append("\n");
 		cout << bestMove;
-
-		/*myfile.open("log.txt", ios::app);
-		string logLine = bestMove;
-		myfile << logLine << "\n";
-		myfile.close();*/
 	}
 
 	if (word == "position") {
@@ -103,7 +97,7 @@ void Engine::receiveCommand(string command) {
 					unsigned char Ffrom, Fto, Fflags;
 					int currentDepth, eval;
 					bool cancelSearch = false;
-					m_board.numPositions = 0;
+					m_search.getNodeCount();
 					auto tp = chrono::high_resolution_clock::now();
 					iterativeDeepeningSearch(&currentDepth, &cancelSearch, &eval, &Ffrom, &Fto, &Fflags);
 					int timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - tp).count();
@@ -134,23 +128,28 @@ void Engine::iterativeDeepeningSearch(int time, int* currentDepth, bool* cancelS
 	int timeSearched = 0;
 	int targetTime = time == 0 ? 10000 : time / 80;
 
-	*currentDepth = 1;
+	m_search.resetNodeCount();
+
+	*eval = 0;
+	*currentDepth = 0;
 	int bestMoveNum = 0;
 
-	unsigned char currentBestMoveFrom, currentBestMoveTo, currentBestMoveFlags;
-	currentBestMoveFrom = currentBestMoveTo = currentBestMoveFlags = 0;
+	// Check for only 1 legal move
+	if (m_search.checkForSingleLegalMove(bestMoveFrom, bestMoveTo, bestMoveFlags) && (time != 0)) {
+		timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - startTime).count();
+		printInfo(timeSearched, *currentDepth, 0);
+
+		return;
+	}
 
 	while (!(*cancelSearch)) {
-		*bestMoveFrom = currentBestMoveFrom;
-		*bestMoveTo = currentBestMoveTo;
-		*bestMoveFlags = currentBestMoveFlags;
-		(*currentDepth)++;
-
-		if (timeSearched > targetTime) {
+		if ((timeSearched > targetTime) || ((std::abs(*eval) >= std::numeric_limits<int>::max() - constants::MAX_DEPTH) && (time != 0))) {
 			return;
 		}
 
-		std::thread worker(&Engine::work, this, cancelSearch, &currentBestMoveFrom, &currentBestMoveTo, &currentBestMoveFlags, *currentDepth, &bestMoveNum, eval);
+		(*currentDepth)++;
+
+		std::thread worker(&Engine::work, this, cancelSearch, bestMoveFrom, bestMoveTo, bestMoveFlags, *currentDepth, &bestMoveNum, eval);
 		worker.join();
 		timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - startTime).count();
 		printInfo(timeSearched, *currentDepth, *eval);
@@ -158,7 +157,7 @@ void Engine::iterativeDeepeningSearch(int time, int* currentDepth, bool* cancelS
 }
 
 void Engine::work(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval) {
-	m_board.findBestMove(cancelSearch, from, to, flags, depth, bestMoveNum, eval);
+	m_search.rootSearch(cancelSearch, from, to, flags, depth, bestMoveNum, eval);
 }
 
 void Engine::printInfo(int timeSearched, int currentDepth, int eval) {
@@ -168,26 +167,26 @@ void Engine::printInfo(int timeSearched, int currentDepth, int eval) {
 	info.append(" seldepth ");
 	info.append(to_string(currentDepth));
 	info.append(" multipv 1");
-	if (eval > 900000000) {
+	if (eval >= std::numeric_limits<int>::max() - constants::MAX_DEPTH) {
 		info.append(" score mate ");
-		info.append(to_string((1000000000 - eval + 1) / 2));
+		info.append(to_string((std::numeric_limits<int>::max() - eval + 1) / 2));
 	}
-	else if (eval < -900000000) {
+	else if (eval <= -std::numeric_limits<int>::max() + constants::MAX_DEPTH) {
 		info.append(" score mate ");
-		info.append(to_string((1000000000 + eval + 1) / -2));
+		info.append(to_string((std::numeric_limits<int>::max() + eval - 1) / -2));
 	}
 	else {
 		info.append(" score cp ");
 		info.append(to_string(eval));
 	}
 	info.append(" nodes ");
-	info.append(to_string(m_board.numPositions));
+	info.append(to_string(m_search.getNodeCount()));
 	info.append(" nps ");
 	if (timeSearched > 0) {
-		info.append(to_string(m_board.numPositions * 1000 / timeSearched));
+		info.append(to_string(m_search.getNodeCount() * 1000 / timeSearched));
 	}
 	else {
-		info.append(to_string(m_board.numPositions * 1000));
+		info.append(to_string(m_search.getNodeCount() * 1000));
 	}
 	info.append(" time ");
 	info.append(to_string(timeSearched));

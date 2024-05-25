@@ -13,6 +13,7 @@ set(SOURCE_FILES
     src/board.cpp
     src/engine.cpp
     src/main.cpp
+    src/search.cpp
     src/transpositionTable.cpp)
 
 add_executable(sunstone ${SOURCE_FILES})

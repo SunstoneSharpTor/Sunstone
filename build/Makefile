@@ -201,6 +201,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sunstone.dir/build.make CMakeFiles/sunstone.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/search.o: src/search.cpp.o
+.PHONY : src/search.o
+
+# target to build an object file
+src/search.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sunstone.dir/build.make CMakeFiles/sunstone.dir/src/search.cpp.o
+.PHONY : src/search.cpp.o
+
+src/search.i: src/search.cpp.i
+.PHONY : src/search.i
+
+# target to preprocess a source file
+src/search.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sunstone.dir/build.make CMakeFiles/sunstone.dir/src/search.cpp.i
+.PHONY : src/search.cpp.i
+
+src/search.s: src/search.cpp.s
+.PHONY : src/search.s
+
+# target to generate assembly for a file
+src/search.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sunstone.dir/build.make CMakeFiles/sunstone.dir/src/search.cpp.s
+.PHONY : src/search.cpp.s
+
 src/transpositionTable.o: src/transpositionTable.cpp.o
 .PHONY : src/transpositionTable.o
 
@@ -243,6 +267,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/search.o"
+	@echo "... src/search.i"
+	@echo "... src/search.s"
 	@echo "... src/transpositionTable.o"
 	@echo "... src/transpositionTable.i"
 	@echo "... src/transpositionTable.s"

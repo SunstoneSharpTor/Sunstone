@@ -7,6 +7,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/sunstone.dir/src/engine.cpp.o.d"
   "CMakeFiles/sunstone.dir/src/main.cpp.o"
   "CMakeFiles/sunstone.dir/src/main.cpp.o.d"
+  "CMakeFiles/sunstone.dir/src/search.cpp.o"
+  "CMakeFiles/sunstone.dir/src/search.cpp.o.d"
   "CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o"
   "CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o.d"
 )

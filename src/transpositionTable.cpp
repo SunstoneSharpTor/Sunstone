@@ -18,6 +18,7 @@ TranspositionTable::TranspositionTable(unsigned long long size) {
 		m_numEntries = m_numEntries << 1;
 		m_keySize--;
 	}
+	std::cout << m_numEntries << std::endl;
 	
 	m_table = new ttEntry[m_numEntries];
 
@@ -27,49 +28,44 @@ TranspositionTable::TranspositionTable(unsigned long long size) {
 	}
 }
 
-void TranspositionTable::recordHash(uint64_t hash, short depth, int value, char flag, unsigned char bestMoveIndex) {
+void TranspositionTable::recordHash(uint64_t hash, short depth, int eval, char flag, unsigned char bestMoveIndex) {
 	uint64_t index = hash >> m_keySize;
 
 	uint16_t newKey = hash;
-
-	//if (!((m_table[index].flags == HashType::Exact) && (flag == HashType::Beta))) {
-	//	if (((m_table[index].flags != HashType::Exact) && (flag == HashType::Exact)) || (depth >= m_table[index].depth)) {
-			m_table[index].key = newKey;
-			m_table[index].depth = depth;
-			//m_table[index].bestMoveIndex = bestMoveIndex;
-			m_table[index].flags = flag;
-			m_table[index].value = value;
-	//	}
-	//}
+	m_table[index].key = newKey;
+	m_table[index].depth = depth;
+	m_table[index].bestMoveIndex = bestMoveIndex;
+	m_table[index].flags = flag;
+	m_table[index].eval = eval;
 }
 
-bool TranspositionTable::probeHash(int* value, uint64_t hash , short depth, int alpha, int beta) {
+bool TranspositionTable::probeHash(int* eval, uint64_t hash , short depth, int alpha, int beta) {
 	uint64_t index = hash >> m_keySize;
 	uint64_t keyCheck = hash << 48 >> 48;
 	if (m_table[index].key == keyCheck) {
 		if (m_table[index].depth >= depth) {
 			if (m_table[index].flags == HashType::Exact) {
-				*value = m_table[index].value;
+				*eval = m_table[index].eval;
 				return true;
 			}
-			if ((m_table[index].flags == HashType::Alpha) && (m_table[index].value <= alpha)) {
-				*value = alpha;
+			if ((m_table[index].flags == HashType::Alpha) && (m_table[index].eval <= alpha)) {
+				*eval = alpha;
 				return true;
 			}
-			if ((m_table[index].flags == HashType::Beta) && (m_table[index].value >= beta)) {
-				*value = beta;
+			if ((m_table[index].flags == HashType::Beta) && (m_table[index].eval >= beta)) {
+				*eval = beta;
 				return true;
 			}
 		}
 		else {
 			if (m_table[index].flags != HashType::Beta) {
-				*value = m_table[index].bestMoveIndex;
+				*eval = m_table[index].bestMoveIndex;
 				return false;
 			}
 		}
 	}
 
-	//set the vaule to 255 as this represents that the transposition table can't provide information on move ordering
-	*value = 255;
+	//set the vaule to 256 as this represents that the transposition table can't provide information on move ordering
+	*eval = 256;
 	return false;
 }
