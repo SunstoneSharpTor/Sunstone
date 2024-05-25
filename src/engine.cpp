@@ -117,7 +117,7 @@ void Engine::receiveCommand(string command) {
 	}
 
 	if (word == "uci") {
-		cout << "id name Sunstone 1.10\n";
+		cout << "id name Sunstone 1.11\n";
 		cout << "id author Bertie Cartwright\n\n";
 		cout << "uciok\n";
 	}
