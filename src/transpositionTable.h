@@ -3,11 +3,11 @@
 #include <cstdint>
 
 struct ttEntry {
+	char flags;
 	uint16_t key;
 	short depth;
-	char flags;
 	unsigned char bestMoveIndex;
-	int value;
+	int eval;
 };
 
 enum HashType {
@@ -21,8 +21,6 @@ private:
 	char m_keySize;
 
 public:
-
-	TranspositionTable() {}
 	TranspositionTable(unsigned long long size);
 
 	~TranspositionTable();

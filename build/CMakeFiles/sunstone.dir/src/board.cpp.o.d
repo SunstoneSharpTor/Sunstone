@@ -202,4 +202,5 @@ CMakeFiles/sunstone.dir/src/board.cpp.o: \
  /usr/include/c++/13/sstream /usr/include/c++/13/bits/sstream.tcc \
  /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/board.h \
  /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/transpositionTable.h \
+ /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/bitboard.h \
  /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/constants.h

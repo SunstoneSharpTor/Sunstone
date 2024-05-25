@@ -19,6 +19,12 @@
 },
 {
   "directory": "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build",
+  "command": "/usr/bin/g++  -I\"/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/./src\" -O3 -DNDEBUG -o CMakeFiles/sunstone.dir/src/search.cpp.o -c \"/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/search.cpp\"",
+  "file": "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/search.cpp",
+  "output": "CMakeFiles/sunstone.dir/src/search.cpp.o"
+},
+{
+  "directory": "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build",
   "command": "/usr/bin/g++  -I\"/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/./src\" -O3 -DNDEBUG -o CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o -c \"/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/transpositionTable.cpp\"",
   "file": "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/transpositionTable.cpp",
   "output": "CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o"

@@ -8,6 +8,11 @@
 
 using namespace std;
 
+enum PieceType {
+    WhiteKing = 0, BlackKing, WhiteQueen, BlackQueen, WhiteBishop, BlackBishop, WhiteKnight, BlackKnight, WhiteRook, BlackRook, WhitePawn, BlackPawn,
+    All, White, Black
+};
+
 struct unMakeMoveState {
     uint64_t enPassantBitboard;
     char enPassantSquare;
@@ -19,11 +24,6 @@ struct unMakeMoveState {
 };
 
 class Board {
-private:
-    enum PieceType {
-        WhiteKing = 0, BlackKing, WhiteQueen, BlackQueen, WhiteBishop, BlackBishop, WhiteKnight, BlackKnight, WhiteRook, BlackRook, WhitePawn, BlackPawn,
-        All, White, Black
-    };
 private:
     //board representation
     //pieces
@@ -48,35 +48,11 @@ private:
     uint64_t m_attackingSquares;
     uint64_t m_pawnAttackingSquares;
 
-    //bitboard manipulation
-    inline unsigned long lsb(uint64_t bitboard) {
-        unsigned long LSBbitboard;
-        // _BitScanForward64(&LSBbitboard, bitboard);
-        // return LSBbitboard;
-        return std::__countr_zero(bitboard);
-    }
-
-    //remove the least significant bit and return which bit it was (0, 1, 2, 3, ...)
-    inline int popLSB(uint64_t* bitboard) {
-        const int square = lsb(*bitboard);
-        *bitboard &= *bitboard - 1;
-        return square;
-    }
-
     //zobrist
     uint64_t m_zobristRandoms[781];
     void initZobristRandoms();
     uint64_t* m_zobristKeys;
-    void getZobristKey();
-
-    TranspositionTable* m_transpositionTable;
-
-    //ai
-    int evaluate();
-    int search(int depth, int plyFromRoot, int alpha, int beta, char numExtensions);
-    int quiescenceSearch(int plyFromRoot, int alpha, int beta);
-    void orderMoves(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, unsigned char ttBestMove);
-    void orderMovesByMoveScores(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, int* lastMoveScores);
+    void setZobristKey();
 
     //move generation
     uint64_t* m_rookMovesLookup[64];
@@ -140,14 +116,9 @@ private:
     void updatePinnedPieces();
 public:
     Board();
-    inline bool getTurn() {
-        return m_turn;
-    }
     void loadFromFen(string fen);
-    inline char getPiece(unsigned char squareIndex) {
-        return m_eightByEight[squareIndex];
-    }
     void makeMove(unsigned char from, unsigned char to, unsigned char flags);
+    void getUnMakeMoveState(unMakeMoveState* prevMoveState, char to);
     void unMakeMove(unsigned char from, unsigned char to, unsigned char flags, unMakeMoveState* prevBoardInfo);
     void getLegalMoves(unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo, unsigned char* legalMovesFlags);
     void getCaptureAndCheckMoves(unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo, unsigned char* legalMovesFlags);
@@ -156,11 +127,7 @@ public:
 
     void calculateMagic(uint64_t* magic, char* shift, uint64_t* blockerBitboards, int numBlockerBitboards, uint64_t* keys, uint64_t* fullPieceMoves);
 
-    void getUnMakeMoveState(unMakeMoveState* prevMoveState, char to);
-
     unsigned long long perft(int depth);
-
-    unsigned long long numPositions;
 
     string getSquareName(char squareNum);
 
@@ -170,5 +137,34 @@ public:
 
     string getMoveName(char from, char to, char flags);
 
-    void findBestMove(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval);
+    inline bool getTurn() {
+        return m_turn;
+    }
+    inline short getPly() {
+        return m_ply;
+    }
+    inline uint64_t getPiecesBB(int pieceType) {
+        return m_pieces[pieceType];
+    }
+    inline char getPiece(unsigned char squareIndex) {
+        return m_eightByEight[squareIndex];
+    }
+    inline uint64_t getZobristRandom(short index) {
+        return m_zobristRandoms[index];
+    }
+    inline uint64_t getZobristKey(short ply) {
+        return m_zobristKeys[ply];
+    }
+    inline bool inCheck() {
+        return m_check;
+    }
+    inline char get50MoveRule() {
+        return m_50MoveRule;
+    }
+    inline short getLastTakeOrPawnMove() {
+        return m_lastTakeOrPawnMove;
+    }
+    inline uint64_t getAttackingSquares() {
+        return m_attackingSquares;
+    }
 };

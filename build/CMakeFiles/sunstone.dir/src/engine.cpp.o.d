@@ -174,4 +174,6 @@ CMakeFiles/sunstone.dir/src/engine.cpp.o: \
  /usr/include/c++/13/bits/this_thread_sleep.h \
  /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/engine.h \
  /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/board.h \
- /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/transpositionTable.h
+ /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/transpositionTable.h \
+ /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/search.h \
+ /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/constants.h

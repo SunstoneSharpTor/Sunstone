@@ -111,10 +111,24 @@ CMakeFiles/sunstone.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/sunstone.dir/src/main.cpp.s"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/main.cpp" -o CMakeFiles/sunstone.dir/src/main.cpp.s
 
+CMakeFiles/sunstone.dir/src/search.cpp.o: CMakeFiles/sunstone.dir/flags.make
+CMakeFiles/sunstone.dir/src/search.cpp.o: /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/search.cpp
+CMakeFiles/sunstone.dir/src/search.cpp.o: CMakeFiles/sunstone.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/sunstone.dir/src/search.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sunstone.dir/src/search.cpp.o -MF CMakeFiles/sunstone.dir/src/search.cpp.o.d -o CMakeFiles/sunstone.dir/src/search.cpp.o -c "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/search.cpp"
+
+CMakeFiles/sunstone.dir/src/search.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/sunstone.dir/src/search.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/search.cpp" > CMakeFiles/sunstone.dir/src/search.cpp.i
+
+CMakeFiles/sunstone.dir/src/search.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/sunstone.dir/src/search.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/search.cpp" -o CMakeFiles/sunstone.dir/src/search.cpp.s
+
 CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o: CMakeFiles/sunstone.dir/flags.make
 CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o: /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/src/transpositionTable.cpp
 CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o: CMakeFiles/sunstone.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o -MF CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o.d -o CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o -c "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/src/transpositionTable.cpp"
 
 CMakeFiles/sunstone.dir/src/transpositionTable.cpp.i: cmake_force
@@ -130,6 +144,7 @@ sunstone_OBJECTS = \
 "CMakeFiles/sunstone.dir/src/board.cpp.o" \
 "CMakeFiles/sunstone.dir/src/engine.cpp.o" \
 "CMakeFiles/sunstone.dir/src/main.cpp.o" \
+"CMakeFiles/sunstone.dir/src/search.cpp.o" \
 "CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o"
 
 # External object files for target sunstone
@@ -138,10 +153,11 @@ sunstone_EXTERNAL_OBJECTS =
 /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/bin/Linux/Release/sunstone: CMakeFiles/sunstone.dir/src/board.cpp.o
 /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/bin/Linux/Release/sunstone: CMakeFiles/sunstone.dir/src/engine.cpp.o
 /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/bin/Linux/Release/sunstone: CMakeFiles/sunstone.dir/src/main.cpp.o
+/media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/bin/Linux/Release/sunstone: CMakeFiles/sunstone.dir/src/search.cpp.o
 /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/bin/Linux/Release/sunstone: CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o
 /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/bin/Linux/Release/sunstone: CMakeFiles/sunstone.dir/build.make
 /media/bertie-cartwright/External\ 4TB\ HDD/sunst/Documents/C++/Chess\ 3.0/Sunstone/bin/Linux/Release/sunstone: CMakeFiles/sunstone.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable \"/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/bin/Linux/Release/sunstone\""
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable \"/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/bin/Linux/Release/sunstone\""
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/sunstone.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

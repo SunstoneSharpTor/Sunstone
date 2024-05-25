@@ -1,4 +1,0 @@
-position startpos
-go
-quit
-quit
