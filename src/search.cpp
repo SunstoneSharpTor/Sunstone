@@ -42,6 +42,12 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
         return val;
     }
     
+    int TTEval;
+    unsigned char bestMove = 255;
+    if (m_transpositionTable.probeHash(&TTEval, m_board->getZobristKey(m_board->getPly()), depth, alpha, beta, &bestMove)) {
+        
+    }
+
     char hashType = HashType::Alpha;
 
     unsigned char numLegalMoves;
@@ -60,7 +66,7 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
         return 0;
     }
 
-    orderMoves(legalMovesFrom, legalMovesTo, legalMovesFlags, legalMovesOrder, numLegalMoves, 255);
+    orderMoves(legalMovesFrom, legalMovesTo, legalMovesFlags, legalMovesOrder, numLegalMoves, bestMove);
 
     bool extension = (numExtensions < 12) && m_board->inCheck();
 
@@ -106,9 +112,15 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
             return beta;
         }
         
-        hashType &= alpha <= evaluation;
+        if (evaluation > alpha) {
+            bestMove = legalMovesOrder[moveNum];
+            hashType = HashType::Exact;
+            alpha = evaluation;
+        }
         alpha = max(alpha, evaluation);
     }
+
+    m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, alpha, hashType, bestMove);
 
     return alpha;
 }
@@ -220,6 +232,8 @@ void Search::orderMoves(unsigned char* from, unsigned char* to, unsigned char* f
 
             bool opponentCanRecapture = (m_board->getAttackingSquares() >> to[move]) & 1ull;
             moveScores[move] += ((captureMaterialDelta > 0) && opponentCanRecapture) * 800 - 400;
+
+            moveScores[move] *= move != ttBestMove;
         }
 
         //give value to promotions

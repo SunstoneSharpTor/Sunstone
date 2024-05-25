@@ -39,10 +39,11 @@ void TranspositionTable::recordHash(uint64_t hash, short depth, int eval, char f
 	m_table[index].eval = eval;
 }
 
-bool TranspositionTable::probeHash(int* eval, uint64_t hash , short depth, int alpha, int beta) {
+bool TranspositionTable::probeHash(int* eval, uint64_t hash , short depth, int alpha, int beta, unsigned char* bestMoveIndex) {
 	uint64_t index = hash >> m_keySize;
 	uint64_t keyCheck = hash << 48 >> 48;
 	if (m_table[index].key == keyCheck) {
+		*bestMoveIndex = m_table[index].bestMoveIndex;
 		if (m_table[index].depth >= depth) {
 			if (m_table[index].flags == HashType::Exact) {
 				*eval = m_table[index].eval;
