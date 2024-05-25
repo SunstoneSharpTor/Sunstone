@@ -10,11 +10,11 @@
 using namespace std;
 
 void Engine::receiveCommand(string command) {
-	ofstream myfile;
-	myfile.open("log.txt", ios::app);
-	string logLine = command;
-	myfile << logLine << "\n";
-	myfile.close();
+	// ofstream myfile;
+	// myfile.open("log.txt", ios::app);
+	// string logLine = command;
+	// myfile << logLine << "\n";
+	// myfile.close();
 
 	stringstream stream(command);
 	string word;
@@ -117,7 +117,7 @@ void Engine::receiveCommand(string command) {
 	}
 
 	if (word == "uci") {
-		cout << "id name Sunstone 1.9\n";
+		cout << "id name Sunstone 1.10\n";
 		cout << "id author Bertie Cartwright\n\n";
 		cout << "uciok\n";
 	}

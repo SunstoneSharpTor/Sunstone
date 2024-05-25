@@ -27,5 +27,5 @@ public:
 	
 	void recordHash(uint64_t hash, short depth, int value, char flag, unsigned char bestMoveIndex);
 
-	bool probeHash(int* value, uint64_t hash, short depth, int alpha, int beta);
+	bool probeHash(int* value, uint64_t hash, short depth, int alpha, int beta, unsigned char* bestMove);
 };
