@@ -66,7 +66,5 @@ bool TranspositionTable::probeHash(int* eval, uint64_t hash , short depth, int a
 		}
 	}
 
-	//set the vaule to 256 as this represents that the transposition table can't provide information on move ordering
-	*eval = 256;
 	return false;
 }

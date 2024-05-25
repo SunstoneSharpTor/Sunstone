@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <iostream>
 
 #include "search.h"
 #include "bitboard.h"
@@ -232,19 +233,19 @@ void Search::orderMoves(unsigned char* from, unsigned char* to, unsigned char* f
 
             bool opponentCanRecapture = (m_board->getAttackingSquares() >> to[move]) & 1ull;
             moveScores[move] += ((captureMaterialDelta > 0) && opponentCanRecapture) * 800 - 400;
-
-            moveScores[move] *= move != ttBestMove;
         }
 
         //give value to promotions
         moveScores[move] += (constants::PIECE_VALUES[flags[move]]) * (flags[move] > 0);
+
+        moveScores[move] *= move != ttBestMove;
 
         //add the move array index
         moveScores[move] = (moveScores[move] << 16) | move;
     }
 
     //sort the moves
-    std::sort(moveScores, moveScores + numMoves);// , greater<unsigned int>());
+    std::sort(moveScores, moveScores + numMoves);
 
     //shift the bits a further 16 places, left and then 16 places right
     //this removes the move score from the integer and leaves just the array index of the move
