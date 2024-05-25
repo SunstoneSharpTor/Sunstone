@@ -163,6 +163,14 @@ int Search::quiescenceSearch(int plyFromRoot, int alpha, int beta) {
 }
 
 void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval) {
+    int alpha = -std::numeric_limits<int>::max();
+    int beta = std::numeric_limits<int>::max();int TTEval;
+
+    unsigned char bestMove = 255;
+    if (m_transpositionTable.probeHash(&TTEval, m_board->getZobristKey(m_board->getPly()), depth, alpha, beta, &bestMove)) {
+        
+    }
+    
     unsigned char numLegalMoves;
     unsigned char legalMovesFrom[256];
     unsigned char legalMovesTo[256];
@@ -171,10 +179,7 @@ void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* 
 
     m_board->getLegalMoves(&numLegalMoves, legalMovesFrom, legalMovesTo, legalMovesFlags);
 
-    int alpha = -std::numeric_limits<int>::max();
-    int beta = std::numeric_limits<int>::max();
-
-    orderMoves(legalMovesFrom, legalMovesTo, legalMovesFlags, legalMovesOrder, numLegalMoves, 255);
+    orderMoves(legalMovesFrom, legalMovesTo, legalMovesFlags, legalMovesOrder, numLegalMoves, bestMove);
     
     //unsigned char newBestMoveIndex = 255;
 
@@ -216,6 +221,8 @@ void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* 
             alpha = evaluation;
         }
     }
+
+    m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, alpha, HashType::Exact, *bestMoveNum);
 
     *eval = alpha;
 }

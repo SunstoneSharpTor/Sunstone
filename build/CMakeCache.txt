@@ -124,16 +124,16 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=Minecraft
+CMAKE_PROJECT_NAME:STATIC=Sunstone
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION:STATIC=1.10.0
+CMAKE_PROJECT_VERSION:STATIC=1.11.0
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION_MAJOR:STATIC=1
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION_MINOR:STATIC=10
+CMAKE_PROJECT_VERSION_MINOR:STATIC=11
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION_PATCH:STATIC=0
@@ -214,6 +214,15 @@ Minecraft_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 Minecraft_SOURCE_DIR:STATIC=/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone
+
+//Value Computed by CMake
+Sunstone_BINARY_DIR:STATIC=/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build
+
+//Value Computed by CMake
+Sunstone_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+Sunstone_SOURCE_DIR:STATIC=/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone
 
 
 ########################
