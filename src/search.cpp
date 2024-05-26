@@ -110,6 +110,7 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
 
         m_board->unMakeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]], &prevMoveState);
         if (evaluation >= beta) {
+            m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, beta, HashType::Beta, legalMovesOrder[moveNum]);
             return beta;
         }
         
@@ -118,7 +119,6 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
             hashType = HashType::Exact;
             alpha = evaluation;
         }
-        alpha = max(alpha, evaluation);
     }
 
     m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, alpha, hashType, bestMove);
