@@ -39,14 +39,13 @@ int Search::evaluate() {
 
 int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExtensions) {
     if (depth == 0) {
-        int val = quiescenceSearch(plyFromRoot, alpha, beta);
-        return val;
+        return quiescenceSearch(plyFromRoot, alpha, beta);
     }
     
     int TTEval;
     unsigned char bestMove = 255;
     if (m_transpositionTable.probeHash(&TTEval, m_board->getZobristKey(m_board->getPly()), depth, alpha, beta, &bestMove)) {
-        
+        return findMateValue(TTEval, plyFromRoot);
     }
 
     char hashType = HashType::Alpha;
@@ -59,10 +58,11 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
 
     m_board->getLegalMoves(&numLegalMoves, legalMovesFrom, legalMovesTo, legalMovesFlags);
 
+    const int mateValue = std::numeric_limits<int>::max() / 2 - plyFromRoot - 1;
+
     if (numLegalMoves == 0) {
         if (m_board->inCheck()) {
-            int val = -std::numeric_limits<int>::max() + plyFromRoot;
-            return val + 1;
+            return -mateValue;
         }
         return 0;
     }
@@ -90,7 +90,6 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
             if (m_board->getZobristKey(i) == m_board->getZobristKey(m_board->getPly())) {
                 evaluation = 0;
             }
-
             else {
                 bool thisMoveExtension = extension || ((numExtensions < 12) && (m_board->getPiece(legalMovesTo[legalMovesOrder[moveNum]]) == (PieceType::BlackPawn - m_board->getTurn())) && ((legalMovesTo[legalMovesOrder[moveNum]] >= 48) || (legalMovesTo[legalMovesOrder[moveNum]] <= 15)));
 
@@ -110,7 +109,7 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
 
         m_board->unMakeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]], &prevMoveState);
         if (evaluation >= beta) {
-            m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, beta, HashType::Beta, legalMovesOrder[moveNum]);
+            m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, findMateDist(beta, plyFromRoot), HashType::Beta, legalMovesOrder[moveNum]);
             return beta;
         }
         
@@ -121,8 +120,7 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
         }
     }
 
-    m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, alpha, hashType, bestMove);
-
+    m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, findMateDist(alpha, plyFromRoot), hashType, bestMove);
     return alpha;
 }
 
@@ -141,7 +139,7 @@ int Search::quiescenceSearch(int plyFromRoot, int alpha, int beta) {
     unsigned char legalMovesFlags[256];
     unsigned int legalMovesOrder[256];
 
-    m_board->getCaptureAndCheckMoves(&numLegalMoves, legalMovesFrom, legalMovesTo, legalMovesFlags);
+    m_board->getCaptureMoves(&numLegalMoves, legalMovesFrom, legalMovesTo, legalMovesFlags);
 
     orderMoves(legalMovesFrom, legalMovesTo, legalMovesFlags, legalMovesOrder, numLegalMoves, 255);
 
@@ -163,12 +161,15 @@ int Search::quiescenceSearch(int plyFromRoot, int alpha, int beta) {
 }
 
 void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval) {
-    int alpha = -std::numeric_limits<int>::max();
-    int beta = std::numeric_limits<int>::max();int TTEval;
+    int alpha = -std::numeric_limits<int>::max() / 2;
+    int beta = std::numeric_limits<int>::max() / 2;
 
     unsigned char bestMove = 255;
+    int TTEval;
     if (m_transpositionTable.probeHash(&TTEval, m_board->getZobristKey(m_board->getPly()), depth, alpha, beta, &bestMove)) {
-        
+        *eval = TTEval;
+        *bestMoveNum = bestMove;
+        return;
     }
     
     unsigned char numLegalMoves;
@@ -275,4 +276,24 @@ bool Search::checkForSingleLegalMove(unsigned char* from, unsigned char* to, uns
     *flags = legalMovesFlags[0];
 
     return numLegalMoves == 1;
+}
+
+int Search::findMateDist(int eval, int plyFromRoot) {
+    if (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1) {
+        return eval + plyFromRoot;
+    }
+    if (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1) {
+        return eval - plyFromRoot;
+    }
+    return eval;
+}
+
+int Search::findMateValue(int eval, int plyFromRoot) {
+    if (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1) {
+        return eval - plyFromRoot;
+    }
+    if (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1) {
+        return eval + plyFromRoot;
+    }
+    return eval;
 }

@@ -23,7 +23,6 @@ TranspositionTable::TranspositionTable(unsigned long long size) {
 	m_table = new ttEntry[m_numEntries];
 
 	for (unsigned long long i = 0; i < m_numEntries; i++) {
-		m_table[i].flags = HashType::Beta;
 		m_table[i].depth = 0;
 	}
 }
@@ -56,12 +55,6 @@ bool TranspositionTable::probeHash(int* eval, uint64_t hash , short depth, int a
 			if ((m_table[index].flags == HashType::Beta) && (m_table[index].eval >= beta)) {
 				*eval = beta;
 				return true;
-			}
-		}
-		else {
-			if (m_table[index].flags != HashType::Beta) {
-				*eval = m_table[index].bestMoveIndex;
-				return false;
 			}
 		}
 	}

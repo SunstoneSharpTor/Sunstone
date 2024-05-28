@@ -117,7 +117,7 @@ void Engine::receiveCommand(string command) {
 	}
 
 	if (word == "uci") {
-		cout << "id name Sunstone 1.11\n";
+		cout << "id name Sunstone 1.12\n";
 		cout << "id author Bertie Cartwright\n\n";
 		cout << "uciok\n";
 	}
@@ -143,7 +143,7 @@ void Engine::iterativeDeepeningSearch(int time, int* currentDepth, bool* cancelS
 	}
 
 	while (!(*cancelSearch)) {
-		if ((timeSearched > targetTime) || ((std::abs(*eval) >= std::numeric_limits<int>::max() - constants::MAX_DEPTH) && (time != 0))) {
+		if ((timeSearched > targetTime) || ((std::abs(*eval) >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH) && (time != 0))) {
 			return;
 		}
 
@@ -167,13 +167,13 @@ void Engine::printInfo(int timeSearched, int currentDepth, int eval) {
 	info.append(" seldepth ");
 	info.append(to_string(currentDepth));
 	info.append(" multipv 1");
-	if (eval >= std::numeric_limits<int>::max() - constants::MAX_DEPTH) {
+	if (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH) {
 		info.append(" score mate ");
-		info.append(to_string((std::numeric_limits<int>::max() - eval + 1) / 2));
+		info.append(to_string((std::numeric_limits<int>::max() / 2 - eval + 1) / 2));
 	}
-	else if (eval <= -std::numeric_limits<int>::max() + constants::MAX_DEPTH) {
+	else if (eval <= -std::numeric_limits<int>::max() / 2+ constants::MAX_DEPTH) {
 		info.append(" score mate ");
-		info.append(to_string((std::numeric_limits<int>::max() + eval - 1) / -2));
+		info.append(to_string((std::numeric_limits<int>::max() / 2 + eval - 1) / -2));
 	}
 	else {
 		info.append(" score cp ");

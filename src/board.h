@@ -97,13 +97,13 @@ private:
     uint64_t getBlackPawnLegalMoves(char square, char kingPosition);
     uint64_t getKnightLegalMoves(char square);
     uint64_t getKingLegalMoves(char square);
-    uint64_t getRookLegalMovesCapturesAndChecksOnly(char square);
-    uint64_t getBishopLegalMovesCapturesAndChecksOnly(char square);
-    uint64_t getQueenLegalMovesCapturesAndChecksOnly(char square);
-    uint64_t getWhitePawnLegalMovesCapturesAndChecksOnly(char square, char kingPosition);
-    uint64_t getBlackPawnLegalMovesCapturesAndChecksOnly(char square, char kingPosition);
-    uint64_t getKnightLegalMovesCapturesAndChecksOnly(char square);
-    uint64_t getKingLegalMovesCapturesAndChecksOnly(char square);
+    uint64_t getRookLegalMovesCapturesOnly(char square);
+    uint64_t getBishopLegalMovesCapturesOnly(char square);
+    uint64_t getQueenLegalMovesCapturesOnly(char square);
+    uint64_t getWhitePawnLegalMovesCapturesOnly(char square, char kingPosition);
+    uint64_t getBlackPawnLegalMovesCapturesOnly(char square, char kingPosition);
+    uint64_t getKnightLegalMovesCapturesOnly(char square);
+    uint64_t getKingLegalMovesCapturesOnly(char square);
     uint64_t getRookAttacks(char square);
     uint64_t getBishopAttacks(char square);
     uint64_t getQueenAttacks(char square);
@@ -121,7 +121,7 @@ public:
     void getUnMakeMoveState(unMakeMoveState* prevMoveState, char to);
     void unMakeMove(unsigned char from, unsigned char to, unsigned char flags, unMakeMoveState* prevBoardInfo);
     void getLegalMoves(unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo, unsigned char* legalMovesFlags);
-    void getCaptureAndCheckMoves(unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo, unsigned char* legalMovesFlags);
+    void getCaptureMoves(unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo, unsigned char* legalMovesFlags);
     uint64_t getLegalMovesBitboardForSquare(char square, unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo);
     bool isMovePromotion(unsigned char from, unsigned char to, unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo, unsigned char* legalMovesFlags);
 
