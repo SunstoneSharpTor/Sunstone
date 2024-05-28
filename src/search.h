@@ -10,7 +10,7 @@ private:
 
     //ai
     int evaluate();
-    int search(int depth, int plyFromRoot, int alpha, int beta, char numExtensions);
+    int search(bool* cancelSearch, int depth, int plyFromRoot, int alpha, int beta, char numExtensions);
     int quiescenceSearch(int plyFromRoot, int alpha, int beta);
     void orderMoves(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, unsigned char ttBestMove);
     int findMateDist(int mateValue, int plyFromRoot);
