@@ -16,7 +16,7 @@ TranspositionTable::TranspositionTable(unsigned long long size) {
 	while (maxNumEntries) {
 		maxNumEntries = maxNumEntries >> 1;
 		m_numEntries = m_numEntries << 1;
-		m_keySize--;
+		m_keySize--; 
 	}
 	std::cout << m_numEntries << std::endl;
 	
@@ -24,6 +24,7 @@ TranspositionTable::TranspositionTable(unsigned long long size) {
 
 	for (unsigned long long i = 0; i < m_numEntries; i++) {
 		m_table[i].depth = 0;
+		m_table[i].bestMoveIndex = 255;
 	}
 }
 

@@ -117,7 +117,7 @@ void Engine::receiveCommand(string command) {
 	}
 
 	if (word == "uci") {
-		cout << "id name Sunstone 1.12\n";
+		cout << "id name Sunstone 1.13\n";
 		cout << "id author Bertie Cartwright\n\n";
 		cout << "uciok\n";
 	}
@@ -167,11 +167,11 @@ void Engine::printInfo(int timeSearched, int currentDepth, int eval) {
 	info.append(" seldepth ");
 	info.append(to_string(currentDepth));
 	info.append(" multipv 1");
-	if (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH) {
+	if (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1) {
 		info.append(" score mate ");
 		info.append(to_string((std::numeric_limits<int>::max() / 2 - eval + 1) / 2));
 	}
-	else if (eval <= -std::numeric_limits<int>::max() / 2+ constants::MAX_DEPTH) {
+	else if (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1) {
 		info.append(" score mate ");
 		info.append(to_string((std::numeric_limits<int>::max() / 2 + eval - 1) / -2));
 	}
