@@ -13,6 +13,8 @@ private:
     int search(int depth, int plyFromRoot, int alpha, int beta, char numExtensions);
     int quiescenceSearch(int plyFromRoot, int alpha, int beta);
     void orderMoves(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, unsigned char ttBestMove);
+    int findMateDist(int mateValue, int plyFromRoot);
+    int findMateValue(int mateDist, int depth);
 public:
     Search(Board* board) : m_board(board), m_transpositionTable(1024), m_numPositions(0) {}
     void rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* to, unsigned char* flags, int depth, int* bestMoveNum, int* eval);

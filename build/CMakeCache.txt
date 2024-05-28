@@ -127,13 +127,13 @@ CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 CMAKE_PROJECT_NAME:STATIC=Sunstone
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION:STATIC=1.11.0
+CMAKE_PROJECT_VERSION:STATIC=1.12.0
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION_MAJOR:STATIC=1
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION_MINOR:STATIC=11
+CMAKE_PROJECT_VERSION_MINOR:STATIC=12
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION_PATCH:STATIC=0
@@ -205,15 +205,6 @@ CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
 // during the make.  This is useful for debugging only. With Visual
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
-
-//Value Computed by CMake
-Minecraft_BINARY_DIR:STATIC=/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build
-
-//Value Computed by CMake
-Minecraft_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-Minecraft_SOURCE_DIR:STATIC=/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone
 
 //Value Computed by CMake
 Sunstone_BINARY_DIR:STATIC=/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build

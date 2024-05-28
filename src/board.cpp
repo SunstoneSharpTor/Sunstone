@@ -819,7 +819,7 @@ uint64_t Board::getRookLegalMoves(char square) {
     return m_rookMovesLookup[square][key] & (~m_pieces[PieceType::White + m_turn]);
 }
 
-uint64_t Board::getRookLegalMovesCapturesAndChecksOnly(char square) {
+uint64_t Board::getRookLegalMovesCapturesOnly(char square) {
     uint64_t blockerBitboard = (~m_pieces[PieceType::All]) & m_rookMovementMasks[square];
     uint64_t key = (blockerBitboard * constants::ROOK_MAGICS[square]) >> constants::ROOK_SHIFTS[square];
     return m_rookMovesLookup[square][key] & (~m_pieces[PieceType::White + m_turn]) & m_pieces[PieceType::Black - m_turn];
@@ -837,7 +837,7 @@ uint64_t Board::getBishopLegalMoves(char square) {
     return m_bishopMovesLookup[square][key] & (~m_pieces[PieceType::White + m_turn]);
 }
 
-uint64_t Board::getBishopLegalMovesCapturesAndChecksOnly(char square) {
+uint64_t Board::getBishopLegalMovesCapturesOnly(char square) {
     uint64_t blockerBitboard = (~m_pieces[PieceType::All]) & m_bishopMovementMasks[square];
     uint64_t key = (blockerBitboard * constants::BISHOP_MAGICS[square]) >> constants::BISHOP_SHIFTS[square];
     return m_bishopMovesLookup[square][key] & (~m_pieces[PieceType::White + m_turn]) & m_pieces[PieceType::Black - m_turn];
@@ -858,7 +858,7 @@ uint64_t Board::getQueenLegalMoves(char square) {
     return (m_rookMovesLookup[square][rookKey] | m_bishopMovesLookup[square][bishopKey]) & (~m_pieces[PieceType::White + m_turn]);
 }
 
-uint64_t Board::getQueenLegalMovesCapturesAndChecksOnly(char square) {
+uint64_t Board::getQueenLegalMovesCapturesOnly(char square) {
     uint64_t allPiecesBitboard = ~m_pieces[PieceType::All];
     uint64_t rookBlockerBitboard = allPiecesBitboard & m_rookMovementMasks[square];
     uint64_t rookKey = (rookBlockerBitboard * constants::ROOK_MAGICS[square]) >> constants::ROOK_SHIFTS[square];
@@ -884,7 +884,7 @@ uint64_t Board::getWhitePawnLegalMoves(char square, char kingPosition) {
     return pieceMoves;
 }
 
-uint64_t Board::getWhitePawnLegalMovesCapturesAndChecksOnly(char square, char kingPosition) {
+uint64_t Board::getWhitePawnLegalMovesCapturesOnly(char square, char kingPosition) {
     uint64_t pieceMoves = m_whitePawn1ForwardMoves[square] & m_pieces[PieceType::All];
     pieceMoves |= m_whitePawn2ForwardMoves[square] & m_pieces[PieceType::All] & (pieceMoves >> 8);
     pieceMoves |= m_whitePawnTakesMoves[square] & m_pieces[PieceType::Black];
@@ -905,7 +905,7 @@ uint64_t Board::getBlackPawnLegalMoves(char square, char kingPosition) {
     return pieceMoves;
 }
 
-uint64_t Board::getBlackPawnLegalMovesCapturesAndChecksOnly(char square, char kingPosition) {
+uint64_t Board::getBlackPawnLegalMovesCapturesOnly(char square, char kingPosition) {
     uint64_t pieceMoves = m_blackPawn1ForwardMoves[square] & m_pieces[PieceType::All];
     pieceMoves |= m_blackPawn2ForwardMoves[square] & m_pieces[PieceType::All] & (pieceMoves << 8);
     pieceMoves |= m_blackPawnTakesMoves[square] & m_pieces[PieceType::White];
@@ -922,7 +922,7 @@ uint64_t Board::getKnightLegalMoves(char square) {
     return m_knightMoves[square] & (~m_pieces[PieceType::White + m_turn]);
 }
 
-uint64_t Board::getKnightLegalMovesCapturesAndChecksOnly(char square) {
+uint64_t Board::getKnightLegalMovesCapturesOnly(char square) {
     return m_knightMoves[square] & (~m_pieces[PieceType::White + m_turn]) & m_pieces[PieceType::Black - m_turn];
 }
 
@@ -942,7 +942,7 @@ uint64_t Board::getKingLegalMoves(char square) {
     return pieceMoves;
 }
 
-uint64_t Board::getKingLegalMovesCapturesAndChecksOnly(char square) {
+uint64_t Board::getKingLegalMovesCapturesOnly(char square) {
     uint64_t pieceMoves = m_kingMoves[square] & (~m_pieces[PieceType::White + m_turn]);
     bool whitesTurn = !m_turn;
     pieceMoves |= (1ull << 58) * m_castleRights[0] * (((m_castlingEmptySquareBitboards[0] & m_pieces[PieceType::All]) == m_castlingEmptySquareBitboards[0]) && !(m_castlingAttackingSquareBitboards[0] & m_attackingSquares)) * whitesTurn;
@@ -1155,7 +1155,7 @@ void Board::getLegalMoves(unsigned char* numLegalMoves, unsigned char* legalMove
     }
 }
 
-void Board::getCaptureAndCheckMoves(unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo, unsigned char* legalMovesFlags) {
+void Board::getCaptureMoves(unsigned char* numLegalMoves, unsigned char* legalMovesFrom, unsigned char* legalMovesTo, unsigned char* legalMovesFlags) {
     updateAttackingSquares();
     updatePinnedPieces();
 
@@ -1166,7 +1166,7 @@ void Board::getCaptureAndCheckMoves(unsigned char* numLegalMoves, unsigned char*
     uint64_t pieceMoves;
 
     if (m_doubleCheck) {
-        pieceMoves = getKingLegalMovesCapturesAndChecksOnly(kingPosition);
+        pieceMoves = getKingLegalMovesCapturesOnly(kingPosition);
 
         while (pieceMoves) {
             legalMovesTo[*numLegalMoves] = popLSB(&pieceMoves);
@@ -1202,40 +1202,40 @@ void Board::getCaptureAndCheckMoves(unsigned char* numLegalMoves, unsigned char*
         for (char piece = 0; piece < numPieces; piece++) {
             switch (m_eightByEight[pieces[piece]]) {
             case PieceType::WhiteRook:
-                pieceMoves = getRookLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getRookLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::BlackRook:
-                pieceMoves = getRookLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getRookLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::WhiteBishop:
-                pieceMoves = getBishopLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getBishopLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::BlackBishop:
-                pieceMoves = getBishopLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getBishopLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::WhiteQueen:
-                pieceMoves = getQueenLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getQueenLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::BlackQueen:
-                pieceMoves = getQueenLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getQueenLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::WhitePawn:
-                pieceMoves = getWhitePawnLegalMovesCapturesAndChecksOnly(pieces[piece], kingPosition);
+                pieceMoves = getWhitePawnLegalMovesCapturesOnly(pieces[piece], kingPosition);
                 break;
             case PieceType::BlackPawn:
-                pieceMoves = getBlackPawnLegalMovesCapturesAndChecksOnly(pieces[piece], kingPosition);
+                pieceMoves = getBlackPawnLegalMovesCapturesOnly(pieces[piece], kingPosition);
                 break;
             case PieceType::WhiteKnight:
-                pieceMoves = getKnightLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getKnightLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::BlackKnight:
-                pieceMoves = getKnightLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getKnightLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::WhiteKing:
-                pieceMoves = getKingLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getKingLegalMovesCapturesOnly(pieces[piece]);
                 break;
             case PieceType::BlackKing:
-                pieceMoves = getKingLegalMovesCapturesAndChecksOnly(pieces[piece]);
+                pieceMoves = getKingLegalMovesCapturesOnly(pieces[piece]);
                 break;
             }
 
@@ -1283,40 +1283,40 @@ void Board::getCaptureAndCheckMoves(unsigned char* numLegalMoves, unsigned char*
     for (char piece = 0; piece < numPieces; piece++) {
         switch (m_eightByEight[pieces[piece]]) {
         case PieceType::WhiteRook:
-            pieceMoves = getRookLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getRookLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::BlackRook:
-            pieceMoves = getRookLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getRookLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::WhiteBishop:
-            pieceMoves = getBishopLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getBishopLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::BlackBishop:
-            pieceMoves = getBishopLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getBishopLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::WhiteQueen:
-            pieceMoves = getQueenLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getQueenLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::BlackQueen:
-            pieceMoves = getQueenLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getQueenLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::WhitePawn:
-            pieceMoves = getWhitePawnLegalMovesCapturesAndChecksOnly(pieces[piece], kingPosition);
+            pieceMoves = getWhitePawnLegalMovesCapturesOnly(pieces[piece], kingPosition);
             break;
         case PieceType::BlackPawn:
-            pieceMoves = getBlackPawnLegalMovesCapturesAndChecksOnly(pieces[piece], kingPosition);
+            pieceMoves = getBlackPawnLegalMovesCapturesOnly(pieces[piece], kingPosition);
             break;
         case PieceType::WhiteKnight:
-            pieceMoves = getKnightLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getKnightLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::BlackKnight:
-            pieceMoves = getKnightLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getKnightLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::WhiteKing:
-            pieceMoves = getKingLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getKingLegalMovesCapturesOnly(pieces[piece]);
             break;
         case PieceType::BlackKing:
-            pieceMoves = getKingLegalMovesCapturesAndChecksOnly(pieces[piece]);
+            pieceMoves = getKingLegalMovesCapturesOnly(pieces[piece]);
             break;
         }
 

@@ -743,7 +743,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "1.11.0"
+			"value" : "1.12.0"
 		},
 		{
 			"name" : "CMAKE_PROJECT_VERSION_MAJOR",
@@ -767,7 +767,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "11"
+			"value" : "12"
 		},
 		{
 			"name" : "CMAKE_PROJECT_VERSION_PATCH",
@@ -1088,42 +1088,6 @@
 			],
 			"type" : "BOOL",
 			"value" : "FALSE"
-		},
-		{
-			"name" : "Minecraft_BINARY_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/build"
-		},
-		{
-			"name" : "Minecraft_IS_TOP_LEVEL",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "ON"
-		},
-		{
-			"name" : "Minecraft_SOURCE_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone"
 		},
 		{
 			"name" : "Sunstone_BINARY_DIR",
