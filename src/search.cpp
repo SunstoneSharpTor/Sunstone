@@ -37,7 +37,10 @@ int Search::evaluate() {
     return evaluation + (-2 * evaluation * m_board->getTurn());
 }
 
-int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExtensions) {
+int Search::search(bool* cancelSearch, int depth, int plyFromRoot, int alpha, int beta, char numExtensions) {
+    if (*cancelSearch) {
+        return 0;
+    }
     if (depth == 0) {
         return quiescenceSearch(plyFromRoot, alpha, beta);
     }
@@ -96,18 +99,21 @@ int Search::search(int depth, int plyFromRoot, int alpha, int beta, char numExte
                 bool needsFullSearch = true;
 
                 if ((moveNum >= 3) && (!thisMoveExtension) && (depth >= 3) && (prevMoveState.takenPieceType == PieceType::All)) {
-                    evaluation = -search(depth - 2 + thisMoveExtension, plyFromRoot + 1, -beta, -alpha, numExtensions + thisMoveExtension);
+                    evaluation = -search(cancelSearch, depth - 2 + thisMoveExtension, plyFromRoot + 1, -beta, -alpha, numExtensions + thisMoveExtension);
 
                     needsFullSearch = evaluation > alpha;
                 }
 
                 if (needsFullSearch) {
-                    evaluation = -search(depth - 1 + thisMoveExtension, plyFromRoot + 1, -beta, -alpha, numExtensions + thisMoveExtension);
+                    evaluation = -search(cancelSearch, depth - 1 + thisMoveExtension, plyFromRoot + 1, -beta, -alpha, numExtensions + thisMoveExtension);
                 }
             }
         }
 
         m_board->unMakeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]], &prevMoveState);
+        if (*cancelSearch) {
+            return 0;
+        }
         if (evaluation >= beta) {
             m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, findMateDist(beta, plyFromRoot), HashType::Beta, legalMovesOrder[moveNum]);
             return beta;
@@ -204,11 +210,16 @@ void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* 
 
                 bool needsFullSearch = true;
 
-                evaluation = -search(depth - 1 + thisMoveExtension, 1, -beta, -alpha, thisMoveExtension);
+                evaluation = -search(cancelSearch, depth - 1 + thisMoveExtension, 1, -beta, -alpha, thisMoveExtension);
             }
         }
 
         m_board->unMakeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]], &prevMoveState);
+        if (*cancelSearch) {
+            m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth - 1, findMateDist(alpha, 1), HashType::Exact, *bestMoveNum);
+            *eval = alpha;
+            return;
+        }
         //if the evaluation is a new high, set the hash type in the tt to be exact, as the value calculated will be the exact evaluation
         if (evaluation > alpha) {
             *from = legalMovesFrom[legalMovesOrder[moveNum]];
@@ -222,6 +233,8 @@ void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* 
     m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, alpha, HashType::Exact, *bestMoveNum);
 
     *eval = alpha;
+
+    *cancelSearch = true;
 }
 
 void Search::orderMoves(unsigned char* from, unsigned char* to, unsigned char* flags, unsigned int* moveScores, unsigned char numMoves, unsigned char ttBestMove) {

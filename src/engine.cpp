@@ -7,8 +7,6 @@
 #include "engine.h"
 #include "constants.h"
 
-using namespace std;
-
 void Engine::receiveCommand(string command) {
 	// ofstream myfile;
 	// myfile.open("log.txt", ios::app);
@@ -117,7 +115,7 @@ void Engine::receiveCommand(string command) {
 	}
 
 	if (word == "uci") {
-		cout << "id name Sunstone 1.13\n";
+		cout << "id name Sunstone 1.14\n";
 		cout << "id author Bertie Cartwright\n\n";
 		cout << "uciok\n";
 	}
@@ -126,7 +124,8 @@ void Engine::receiveCommand(string command) {
 void Engine::iterativeDeepeningSearch(int time, int* currentDepth, bool* cancelSearch, int* eval, unsigned char* bestMoveFrom, unsigned char* bestMoveTo, unsigned char* bestMoveFlags) {
 	auto startTime = chrono::high_resolution_clock::now();
 	int timeSearched = 0;
-	int targetTime = time == 0 ? 10000 : time / 80;
+	int targetTime = time == 0 ? 10000 : time / 70;
+	int maxTime = time == 0 ? 10000 : time / 15;
 
 	m_search.resetNodeCount();
 
@@ -137,21 +136,36 @@ void Engine::iterativeDeepeningSearch(int time, int* currentDepth, bool* cancelS
 	// Check for only 1 legal move
 	if (m_search.checkForSingleLegalMove(bestMoveFrom, bestMoveTo, bestMoveFlags) && (time != 0)) {
 		timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - startTime).count();
-		printInfo(timeSearched, *currentDepth, 0);
+		m_lastEval +=
+			2 * (m_lastEval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1)
+			- 2 * (m_lastEval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1);
+		printInfo(timeSearched, *currentDepth, m_lastEval);
 
 		return;
 	}
 
 	while (!(*cancelSearch)) {
 		if ((timeSearched > targetTime) || ((std::abs(*eval) >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH) && (time != 0))) {
+			m_lastEval = *eval;
 			return;
 		}
 
 		(*currentDepth)++;
 
 		std::thread worker(&Engine::work, this, cancelSearch, bestMoveFrom, bestMoveTo, bestMoveFlags, *currentDepth, &bestMoveNum, eval);
+		while (!(*cancelSearch)) {
+			std::this_thread::sleep_for(std::chrono::microseconds(targetTime * 2));
+			timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - startTime).count();
+			if (timeSearched > maxTime) {
+				*cancelSearch = true;
+				*currentDepth -= 1;
+			}
+		}
 		worker.join();
 		timeSearched = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now() - startTime).count();
+		if (timeSearched < targetTime) {
+			*cancelSearch = false;
+		}
 		printInfo(timeSearched, *currentDepth, *eval);
 	}
 }

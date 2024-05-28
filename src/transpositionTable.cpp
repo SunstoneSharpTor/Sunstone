@@ -18,7 +18,6 @@ TranspositionTable::TranspositionTable(unsigned long long size) {
 		m_numEntries = m_numEntries << 1;
 		m_keySize--; 
 	}
-	std::cout << m_numEntries << std::endl;
 	
 	m_table = new ttEntry[m_numEntries];
 
