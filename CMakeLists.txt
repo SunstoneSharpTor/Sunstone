@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27.4)
-project(Sunstone VERSION 1.12.0 LANGUAGES CXX)
+project(Sunstone VERSION 1.13.0 LANGUAGES CXX)
 
 set(OSBitness 64)
 set(FullOutputDir "${CMAKE_SOURCE_DIR}/bin/${CMAKE_SYSTEM_NAME}/${CMAKE_BUILD_TYPE}")

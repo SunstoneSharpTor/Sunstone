@@ -166,11 +166,7 @@ void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* 
 
     unsigned char bestMove = 255;
     int TTEval;
-    if (m_transpositionTable.probeHash(&TTEval, m_board->getZobristKey(m_board->getPly()), depth, alpha, beta, &bestMove)) {
-        *eval = TTEval;
-        *bestMoveNum = bestMove;
-        return;
-    }
+    m_transpositionTable.probeHash(&TTEval, m_board->getZobristKey(m_board->getPly()), depth, alpha, beta, &bestMove);
     
     unsigned char numLegalMoves;
     unsigned char legalMovesFrom[256];
@@ -246,6 +242,7 @@ void Search::orderMoves(unsigned char* from, unsigned char* to, unsigned char* f
         //give value to promotions
         moveScores[move] += (constants::PIECE_VALUES[flags[move]]) * (flags[move] > 0);
 
+        //prioritise the best move from the transposition table
         moveScores[move] *= move != ttBestMove;
 
         //add the move array index
@@ -278,22 +275,14 @@ bool Search::checkForSingleLegalMove(unsigned char* from, unsigned char* to, uns
     return numLegalMoves == 1;
 }
 
-int Search::findMateDist(int eval, int plyFromRoot) {
-    if (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1) {
-        return eval + plyFromRoot;
-    }
-    if (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1) {
-        return eval - plyFromRoot;
-    }
-    return eval;
+inline int Search::findMateDist(int eval, int plyFromRoot) {
+    return eval
+        + plyFromRoot * (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1)
+        - plyFromRoot * (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1);
 }
 
-int Search::findMateValue(int eval, int plyFromRoot) {
-    if (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1) {
-        return eval - plyFromRoot;
-    }
-    if (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1) {
-        return eval + plyFromRoot;
-    }
-    return eval;
+inline int Search::findMateValue(int eval, int plyFromRoot) {
+    return eval
+        - (plyFromRoot - 1) * (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1)
+        + (plyFromRoot - 1) * (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1);
 }
