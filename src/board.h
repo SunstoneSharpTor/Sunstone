@@ -34,6 +34,7 @@ private:
     char m_enPassantSquare; //position of pawn that has just moved 2 spaces
     //castling
     bool m_castleRights[4];
+    bool m_castled[2];
     //turns
     bool m_turn;
     unsigned short m_ply;
@@ -166,5 +167,9 @@ public:
     }
     inline uint64_t getAttackingSquares() {
         return m_attackingSquares;
+    }
+    inline int getCastleScore() {
+        return (m_castleRights[0] || m_castleRights[1] || m_castled[0])
+            - (m_castleRights[2] || m_castleRights[3] || m_castled[1]);
     }
 };

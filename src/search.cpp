@@ -33,6 +33,7 @@ int Search::evaluate() {
         }
     }
     evaluation += piecePositionEval / 16;
+    evaluation += m_board->getCastleScore() * 2 * (earlyGame - 5);
     m_numPositions++;
     return evaluation + (-2 * evaluation * m_board->getTurn());
 }
@@ -216,7 +217,7 @@ void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* 
 
         m_board->unMakeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]], &prevMoveState);
         if (*cancelSearch) {
-            m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth - 1, findMateDist(alpha, 1), HashType::Exact, *bestMoveNum);
+            m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, alpha, HashType::Alpha, *bestMoveNum);
             *eval = alpha;
             return;
         }

@@ -99,6 +99,8 @@ void Board::loadFromFen(string fen) {
     if (fenBoard.find('k') != string::npos) {
         m_castleRights[3] = true;
     }
+    m_castled[0] = !(m_castleRights[0] || m_castleRights[1]);
+    m_castled[1] = !(m_castleRights[2] || m_castleRights[3]);
 
     //load en passant square
     stream >> fenBoard;
@@ -184,6 +186,8 @@ void Board::makeMove(unsigned char from, unsigned char to, unsigned char flags) 
         m_eightByEight[5] = (m_eightByEight[5] * !castle[3]) + (PieceType::BlackRook * castle[3]);
         m_zobristKeys[m_ply] ^= m_zobristRandoms[PieceType::BlackRook * 64 + 7] * castle[3];
         m_zobristKeys[m_ply] ^= m_zobristRandoms[PieceType::BlackRook * 64 + 5] * castle[3];
+        m_castled[0] |= castle[0] || castle[1];
+        m_castled[1] |= castle[2] || castle[3];
     }
 
     //update castling rights
@@ -344,6 +348,8 @@ void Board::unMakeMove(unsigned char from, unsigned char to, unsigned char flags
         m_eightByEight[5] = (m_eightByEight[5] * !castle[3]) + (PieceType::All * castle[3]);
         m_zobristKeys[m_ply] ^= m_zobristRandoms[PieceType::BlackRook * 64 + 7] * castle[3];
         m_zobristKeys[m_ply] ^= m_zobristRandoms[PieceType::BlackRook * 64 + 5] * castle[3];
+        m_castled[0] ^= castle[0] || castle[1];
+        m_castled[1] ^= castle[2] || castle[3];
     }
 
     //update bitboards of all white and all black pieces
