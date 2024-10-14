@@ -1,5 +1,7 @@
 #include <iostream>
+#include <limits>
 
+#include "constants.h"
 #include "transpositionTable.h"
 
 using namespace std;
@@ -48,11 +50,15 @@ bool TranspositionTable::probeHash(int* eval, uint64_t hash , short depth, int a
 				*eval = m_table[index].eval;
 				return true;
 			}
-			if ((m_table[index].flags == HashType::Alpha) && (m_table[index].eval <= alpha)) {
+			if ((m_table[index].flags == HashType::Alpha) && (m_table[index].eval <= alpha)
+				&& (m_table[index].eval < std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1)
+				&& (m_table[index].eval > -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1)) {
 				*eval = alpha;
 				return true;
 			}
-			if ((m_table[index].flags == HashType::Beta) && (m_table[index].eval >= beta)) {
+			if ((m_table[index].flags == HashType::Beta) && (m_table[index].eval >= beta)
+				&& (m_table[index].eval < std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1)
+				&& (m_table[index].eval > -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1)) {
 				*eval = beta;
 				return true;
 			}

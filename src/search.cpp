@@ -217,8 +217,13 @@ void Search::rootSearch(bool* cancelSearch, unsigned char* from, unsigned char* 
 
         m_board->unMakeMove(legalMovesFrom[legalMovesOrder[moveNum]], legalMovesTo[legalMovesOrder[moveNum]], legalMovesFlags[legalMovesOrder[moveNum]], &prevMoveState);
         if (*cancelSearch) {
-            m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth, alpha, HashType::Alpha, *bestMoveNum);
-            *eval = alpha;
+            if (alpha == -std::numeric_limits<int>::max() / 2) {
+                *eval == TTEval;
+            }
+            else {
+                m_transpositionTable.recordHash(m_board->getZobristKey(m_board->getPly()), depth - 1, alpha, HashType::Exact, *bestMoveNum);
+                *eval = alpha;
+            }
             return;
         }
         //if the evaluation is a new high, set the hash type in the tt to be exact, as the value calculated will be the exact evaluation
@@ -256,7 +261,7 @@ void Search::orderMoves(unsigned char* from, unsigned char* to, unsigned char* f
         //give value to promotions
         moveScores[move] += (constants::PIECE_VALUES[flags[move]]) * (flags[move] > 0);
 
-        //prioritise the best move from the transposition table
+        //prioritize the best move from the transposition table
         moveScores[move] *= move != ttBestMove;
 
         //add the move array index
@@ -297,6 +302,6 @@ inline int Search::findMateDist(int eval, int plyFromRoot) {
 
 inline int Search::findMateValue(int eval, int plyFromRoot) {
     return eval
-        - (plyFromRoot - 1) * (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1)
-        + (plyFromRoot - 1) * (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1);
+        - (plyFromRoot) * (eval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1)
+        + (plyFromRoot) * (eval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1);
 }
