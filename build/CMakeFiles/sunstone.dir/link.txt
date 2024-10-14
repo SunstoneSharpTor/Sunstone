@@ -1,1 +1,0 @@
-/usr/bin/g++ -O3 -DNDEBUG CMakeFiles/sunstone.dir/src/board.cpp.o CMakeFiles/sunstone.dir/src/engine.cpp.o CMakeFiles/sunstone.dir/src/main.cpp.o CMakeFiles/sunstone.dir/src/search.cpp.o CMakeFiles/sunstone.dir/src/transpositionTable.cpp.o -o "/media/bertie-cartwright/External 4TB HDD/sunst/Documents/C++/Chess 3.0/Sunstone/bin/Linux/Release/sunstone" 

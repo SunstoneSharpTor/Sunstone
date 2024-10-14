@@ -115,7 +115,7 @@ void Engine::receiveCommand(string command) {
 	}
 
 	if (word == "uci") {
-		cout << "id name Sunstone 1.15\n";
+		cout << "id name Sunstone 1.16\n";
 		cout << "id author Bertie Cartwright\n\n";
 		cout << "uciok\n";
 	}
@@ -139,7 +139,7 @@ void Engine::iterativeDeepeningSearch(int time, int* currentDepth, bool* cancelS
 		m_lastEval +=
 			2 * (m_lastEval >= std::numeric_limits<int>::max() / 2 - constants::MAX_DEPTH - 1)
 			- 2 * (m_lastEval <= -std::numeric_limits<int>::max() / 2 + constants::MAX_DEPTH + 1);
-		printInfo(timeSearched, *currentDepth, m_lastEval);
+		printInfo(timeSearched, 1, m_lastEval);
 
 		return;
 	}
