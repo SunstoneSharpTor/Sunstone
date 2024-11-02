@@ -259,7 +259,7 @@ void Search::orderMoves(unsigned char* from, unsigned char* to, unsigned char* f
         }
 
         //give value to promotions
-        moveScores[move] += (constants::PIECE_VALUES[flags[move]]) * (flags[move] > 0);
+        moveScores[move] += (constants::PIECE_VALUES[flags[move]] - constants::PIECE_VALUES[PieceType::WhitePawn]) * (flags[move] > 0);
 
         //prioritize the best move from the transposition table
         moveScores[move] *= move != ttBestMove;
